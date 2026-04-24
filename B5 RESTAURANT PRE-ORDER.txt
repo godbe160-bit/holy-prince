@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Godbe Aroma | Master Ultimate System</title>
+<style>
+    :root {
+        --primary: #d97706; --dark: #1f2937; --light: #f3f4f6;
+        --success: #10b981; --info: #3b82f6; --danger: #ef4444;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin:0; padding:0; color: #333; }
+    .container { max-width: 600px; margin: 20px auto; padding: 25px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h2, h3 { text-align: center; color: var(--dark); margin-top: 0; border-bottom: 2px solid var(--light); padding-bottom: 10px; }
+    
+    input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #d1d5db; box-sizing: border-box; }
+    button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button:hover { opacity: 0.9; }
+    .btn-secondary { background: var(--dark); }
+    .btn-small { width: auto; padding: 5px 12px; font-size: 12px; margin: 5px 0; }
+    
+    /* Profile Section */
+    .profile { text-align: center; background: #fffaf0; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #fbbf24; position: relative; }
+    .profile img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
+    .edit-icon { position: absolute; bottom: 50px; right: 50%; transform: translateX(40px); background: var(--primary); color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; }
+    #uploadPic { display: none; }
+
+    /* Cart & Menu */
+    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .menu-item { background: #f9fafb; border: 1px solid #e5e7eb; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .cart-section { background: var(--dark); color: white; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #374151; padding: 5px 0; font-size: 13px; }
+
+    /* Admin Cards */
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px; text-align: center; }
+    .stat-card b { font-size: 18px; color: var(--primary); display: block; }
+
+    /* Feedback & Status */
+    .feedback-box { background: #ecfdf5; border: 1px solid #10b981; padding: 10px; margin-top: 10px; border-radius: 8px; font-size: 13px; color: #065f46; }
+    ul { list-style: none; padding: 0; }
+    li { background: #fff; border: 1px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--primary); }
+    .badge { padding: 3px 8px; border-radius: 10px; font-size: 11px; color: white; font-weight: bold; }
+    .Pending { background: #f59e0b; } .Cooking { background: #3b82f6; } .Completed { background: #10b981; }
+    .delivered-confirm { color: var(--success); font-weight: bold; font-size: 12px; }
+
+    .hidden { display: none !important; }
+    #countdown { color: var(--danger); font-weight: bold; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="container" id="loginPage">
+    <h2>🍔 Godbe Aroma Login</h2>
+    <input id="loginUser" placeholder="Username">
+    <input id="loginPass" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p style="text-align:center">Need an account? <a href="#" onclick="showPage('registerPage')">Register</a></p>
+</div>
+
+<div class="container hidden" id="registerPage">
+    <h2>Create Account</h2>
+    <input id="regUser" placeholder="Username">
+    <input id="regPass" type="password" placeholder="Password">
+    <select id="role"><option value="customer">Customer</option><option value="admin">Admin</option></select>
+    <button onclick="register()">Sign Up</button>
+</div>
+
+<div class="container hidden" id="orderPage">
+    <div class="profile">
+        <img id="profilePic" src="https://via.placeholder.com/100">
+        <div class="edit-icon" onclick="document.getElementById('uploadPic').click()">✎</div>
+        <input type="file" id="uploadPic" accept="image/*" onchange="uploadProfilePic(event)">
+        <div id="pNameDisplay"><strong>User</strong></div>
+    </div>
+
+    <h3>🍴 Food Menu</h3>
+    <div class="menu-grid" id="menuDisplay"></div>
+
+    <div class="cart-section">
+        <strong>🛒 Items in Cart</strong>
+        <div id="cartList"></div>
+        <div style="text-align:right; margin-top:5px;"><strong id="totalPrice">Total: ₦0</strong></div>
+    </div>
+
+    <h3>📍 Location & Time</h3>
+    <input type="datetime-local" id="pickupTime">
+    <select id="deliveryType" onchange="toggleLocationFields()">
+        <option value="Pickup">Pickup at Store</option>
+        <option value="Door Delivery">Door Delivery</option>
+    </select>
+    
+    <div id="locationFields" class="hidden">
+        <select id="deliveryArea">
+            <option value="Keffi Central">Keffi Central</option>
+            <option value="Angware">Angware</option>
+            <option value="Gidan Maikano">Gidan Maikano</option>
+        </select>
+        <input id="streetAddress" placeholder="Full Street Address / House Number">
+    </div>
+
+    <h3>💳 Payment Method</h3>
+    <select id="pMethod" onchange="togglePaymentFields()">
+        <option value="Cash">Cash on Delivery</option>
+        <option value="Card">Pay with Card</option>
+        <option value="Transfer">Bank Transfer</option>
+    </select>
+
+    <div id="cardFields" class="hidden">
+        <input id="cardNumber" placeholder="Card Number (16 Digits)">
+        <input id="cardPin" type="password" placeholder="PIN / CVV">
+    </div>
+
+    <div id="bankBox" class="hidden">
+        <p style="font-size:13px; text-align:center">OPAY | 8026465818 | Ode Aogo Godbe</p>
+        <div id="countdown">30s remaining</div>
+    </div>
+
+    <button onclick="placeOrder()">Order Now</button>
+
+    <h3>📌 Track & Feedback</h3>
+    <ul id="custOrders"></ul>
+    <button class="btn-secondary" onclick="logout()">Logout</button>
+</div>
+
+<div class="container hidden" id="adminPage">
+    <h2>📊 Kitchen Analytics</h2>
+    <div class="stats-row">
+        <div class="stat-card">Total Sales <b id="sRev">₦0</b></div>
+        <div class="stat-card">Feedback Received <b id="sSat">0</b></div>
+    </div>
+
+    <h3>All Orders & Customer Feedback</h3>
+    <ul id="adminOrderList"></ul>
+    <button class="btn-secondary" onclick="logout()">Logout</button>
+</div>
+
+<script>
+let users = JSON.parse(localStorage.getItem('ga_users')) || [];
+let orders = JSON.parse(localStorage.getItem('ga_orders')) || [];
+let cart = [];
+let currentUser = null;
+let timer;
+
+const menu = [
+    {id:1, name:"Godbe Burger", price:2000}, {id:2, name:"Chicken Pizza", price:3500},
+    {id:3, name:"Beef Pasta", price:2500}, {id:4, name:"Suya Fries", price:1200},
+    {id:5, name:"Cold Soda", price:600}
+];
+
+function showPage(id) {
+    document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function register() {
+    let u = document.getElementById('regUser').value, p = document.getElementById('regPass').value, r = document.getElementById('role').value;
+    if(!u || !p) return alert("Missing info");
+    users.push({username:u, password:p, role:r, pic:''});
+    localStorage.setItem('ga_users', JSON.stringify(users));
+    alert("Success!"); showPage('loginPage');
+}
+
+function login() {
+    let u = document.getElementById('loginUser').value, p = document.getElementById('loginPass').value;
+    let user = users.find(x => x.username === u && x.password === p);
+    if(!user) return alert("Invalid Login");
+    currentUser = user;
+    if(user.role === 'admin') { showPage('adminPage'); updateAdmin(); }
+    else { showPage('orderPage'); renderMenu(); updateProfile(); renderCustOrders(); }
+}
+
+function updateProfile() {
+    document.getElementById('profilePic').src = currentUser.pic || 'https://via.placeholder.com/100';
+    document.getElementById('pNameDisplay').innerHTML = `<strong>${currentUser.username}</strong>`;
+}
+
+function uploadProfilePic(e) {
+    let r = new FileReader();
+    r.onload = function() {
+        currentUser.pic = r.result;
+        let idx = users.findIndex(u => u.username === currentUser.username);
+        users[idx].pic = r.result;
+        localStorage.setItem('ga_users', JSON.stringify(users));
+        updateProfile();
+    };
+    r.readAsDataURL(e.target.files[0]);
+}
+
+function renderMenu() {
+    document.getElementById('menuDisplay').innerHTML = menu.map(m => `
+        <div class="menu-item">
+            <span>${m.name}<br>₦${m.price}</span>
+            <button class="btn-small" onclick="addToCart(${m.id})">Add</button>
+        </div>`).join('');
+}
+
+function addToCart(id) {
+    cart.push(menu.find(m => m.id === id));
+    updateCartUI();
+}
+
+function updateCartUI() {
+    document.getElementById('cartList').innerHTML = cart.map(c => `<div class="cart-item"><span>${c.name}</span><span>₦${c.price}</span></div>`).join('');
+    document.getElementById('totalPrice').innerText = `Total: ₦${cart.reduce((s, i) => s + i.price, 0)}`;
+}
+
+// TOGGLES FOR LOCATION & PAYMENT
+function toggleLocationFields() {
+    document.getElementById('locationFields').classList.toggle('hidden', document.getElementById('deliveryType').value === 'Pickup');
+}
+
+function togglePaymentFields() {
+    let method = document.getElementById('pMethod').value;
+    document.getElementById('cardFields').classList.toggle('hidden', method !== 'Card');
+    document.getElementById('bankBox').classList.toggle('hidden', method !== 'Transfer');
+    
+    if(method === 'Transfer') {
+        let s = 30; clearInterval(timer);
+        timer = setInterval(() => {
+            s--; document.getElementById('countdown').innerText = s + "s remaining";
+            if(s <= 0) { clearInterval(timer); logout(); alert("Transfer window expired!"); }
+        }, 1000);
+    } else {
+        clearInterval(timer);
+    }
+}
+
+function placeOrder() {
+    if(cart.length === 0) return alert("Cart is empty");
+    let delType = document.getElementById('deliveryType').value;
+    let o = {
+        id: Date.now(), customer: currentUser.username, items: [...cart],
+        total: cart.reduce((s, i) => s + i.price, 0), time: document.getElementById('pickupTime').value,
+        delivery: delType,
+        address: delType === 'Door Delivery' ? document.getElementById('streetAddress').value + ", " + document.getElementById('deliveryArea').value : "Pickup",
+        payment: document.getElementById('pMethod').value,
+        status: 'Pending', feedback: null, confirmed: false
+    };
+    orders.push(o);
+    localStorage.setItem('ga_orders', JSON.stringify(orders));
+    cart = []; updateCartUI(); renderCustOrders(); alert("Order Placed Successfully!");
+}
+
+// FEEDBACK LOGIC
+function confirmDelivery(id) {
+    orders.find(o => o.id === id).confirmed = true;
+    localStorage.setItem('ga_orders', JSON.stringify(orders));
+    renderCustOrders();
+}
+
+function submitFeedback(id) {
+    let r = document.getElementById(`rate-${id}`).value;
+    let c = document.getElementById(`comm-${id}`).value;
+    orders.find(o => o.id === id).feedback = { rating: r, comment: c };
+    localStorage.setItem('ga_orders', JSON.stringify(orders));
+    renderCustOrders();
+}
+
+function renderCustOrders() {
+    let my = orders.filter(o => o.customer === currentUser.username);
+    document.getElementById('custOrders').innerHTML = my.reverse().map(o => {
+        let act = "";
+        if(o.status === 'Completed' && !o.confirmed) act = `<button class="btn-small" onclick="confirmDelivery(${o.id})">Confirm Delivery</button>`;
+        else if(o.confirmed && !o.feedback) act = `<div class="feedback-box">Rate Food: <select id="rate-${o.id}"><option>⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐</option><option>⭐⭐⭐</option></select><input id="comm-${o.id}" placeholder="Your comment..."><button class="btn-small" onclick="submitFeedback(${o.id})">Send Feedback</button></div>`;
+        else if(o.feedback) act = `<div class="feedback-box">Sent: ${o.feedback.rating}</div>`;
+        return `<li><span class="badge ${o.status}">${o.status}</span><br>Order #${o.id.toString().slice(-4)} | ₦${o.total}<br>${act}</li>`;
+    }).join('');
+}
+
+function updateAdmin() {
+    document.getElementById('sRev').innerText = "₦" + orders.reduce((s, o) => s + o.total, 0);
+    document.getElementById('sSat').innerText = orders.filter(o => o.feedback).length;
+
+    document.getElementById('adminOrderList').innerHTML = orders.reverse().map(o => {
+        let confirmTxt = o.confirmed ? `<span class="delivered-confirm">✔ DELIVERED (CONFIRMED BY CLIENT)</span>` : "";
+        let feedbackTxt = o.feedback ? `<div style="color:var(--primary); font-size:12px; margin-top:5px;"><b>Feedback:</b> ${o.feedback.rating} - ${o.feedback.comment}</div>` : "";
+        return `<li>
+            <div style="display:flex; justify-content:space-between"><strong>${o.customer}</strong> ${confirmTxt}</div>
+            <div style="font-size:13px; color:#666"><b>Items:</b> ${o.items.map(i => i.name).join(', ')}</div>
+            <div style="font-size:13px; color:#666"><b>Location:</b> ${o.address}</div>
+            <div style="font-size:13px; color:#666"><b>Payment:</b> ${o.payment}</div>
+            ${feedbackTxt}
+            <select onchange="updateStat(${o.id}, this.value)" style="width:auto; margin-top:8px; font-size:12px;">
+                <option ${o.status=='Pending'?'selected':''}>Pending</option>
+                <option ${o.status=='Cooking'?'selected':''}>Cooking</option>
+                <option ${o.status=='Completed'?'selected':''}>Completed</option>
+            </select>
+        </li>`;
+    }).join('');
+}
+
+function updateStat(id, s) {
+    orders.find(o => o.id === id).status = s;
+    localStorage.setItem('ga_orders', JSON.stringify(orders));
+    updateAdmin();
+}
+
+function logout() { location.reload(); }
+</script>
+</body>
+</html>
